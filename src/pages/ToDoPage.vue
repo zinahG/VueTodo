@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
-import TodoForm from "./../components/TodoForm.vue";
-import TodoList from "./../components/TodoList.vue";
+import TodoForm from "@/components/TodoForm.vue";
+import TodoList from "@/components/TodoList.vue";
+import { inject } from "vue";
 
 interface Todo {
   content: string;
@@ -11,9 +12,8 @@ interface Todo {
 }
 
 const todos = ref<Todo[]>([]);
-const name = ref("");
 
-const inputContent = ref<string>("");
+const { name } = inject("sharedName");
 
 const todosAsc = computed(() =>
   todos.value.slice().sort((a, b) => {
@@ -39,10 +39,6 @@ const removeTodo = (todo: Todo) => {
   console.log(todo);
 };
 
-watch(name, (newVal) => {
-  localStorage.setItem("name", newVal);
-});
-
 watch(
   todos,
   (newVal) => {
@@ -52,6 +48,7 @@ watch(
     deep: true,
   }
 );
+
 onMounted(() => {
   name.value = localStorage.getItem("name") || "";
   todos.value = JSON.parse(localStorage.getItem("todos") || "[]");
@@ -59,25 +56,27 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="app">
-    <nav class="navbar">
-      <ul>
-        <li><router-link to="/">Home</router-link></li>
-        <li><router-link to="/about">About</router-link></li>
-      </ul>
-      <hr class="navbar-line" />
-    </nav>
-    <section class="greeting">
-      <h2 class="title">
-        Hello,
-        <input type="text" id="name" placeholder="your name" v-model="name" />
-      </h2>
-    </section>
+  <layout>
+    <main class="app">
+      <nav class="navbar">
+        <ul>
+          <li><router-link to="/">Home</router-link></li>
+          <li><router-link to="/about">About</router-link></li>
+        </ul>
+        <hr class="navbar-line" />
+      </nav>
+      <section class="greeting">
+        <h2 class="title">
+          Hello,
+          <input type="text" id="name" placeholder="your name" v-model="name" />
+        </h2>
+      </section>
 
-    <todo-form :addTodo="addTodo" />
+      <todo-form :addTodo="addTodo" />
 
-    <todo-list :todosAsc="todosAsc" :removeTodo="removeTodo" />
-  </main>
+      <todo-list :todosAsc="todosAsc" :removeTodo="removeTodo" />
+    </main>
+  </layout>
 </template>
 
 <style scoped>

@@ -1,3 +1,15 @@
+<script setup lang="ts">
+import { inject } from "vue";
+
+const { name, updateName } = inject("sharedName");
+let localName = name;
+
+const changeName = (newName) => {
+  updateName(newName);
+  localName = newName;
+};
+</script>
+
 <template>
   <div class="about">
     <nav class="navbar">
@@ -9,6 +21,11 @@
     </nav>
     <br />
     <h1>This is About Page</h1>
+    <br />
+    <div class="input-container">
+      <input type="text" v-model="localName" class="custom-input" />
+      <button @click="changeName(localName)">Change Name</button>
+    </div>
   </div>
 </template>
 
@@ -40,5 +57,17 @@ hr.navbar-line {
   background-color: var(--dark);
   position: absolute;
   bottom: 0;
+}
+.input-container {
+  display: flex;
+  align-items: center;
+}
+
+.custom-input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+  font-size: 14px;
 }
 </style>
