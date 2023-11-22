@@ -1,6 +1,10 @@
 <template>
   <div>
-    <slot name="pageTitle"></slot>
-    <slot> </slot>
+    <header>
+      <slot name="pageTitle"></slot>
+    </header>
+    <main>
+      <slot></slot>
+    </main>
   </div>
 </template>
