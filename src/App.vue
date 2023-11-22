@@ -1,5 +1,5 @@
 <script setup>
-import Layout from "@/components/Layout.vue";
+import Navbar from "@/components/Navbar.vue";
 import { provide, ref, watch } from "vue";
 
 const name = ref(localStorage.getItem("name") || "");
@@ -19,7 +19,6 @@ watch(name, (newVal) => {
 </script>
 
 <template>
-  <layout>
-    <router-view></router-view>
-  </layout>
+  <navbar></navbar>
+  <router-view></router-view>
 </template>

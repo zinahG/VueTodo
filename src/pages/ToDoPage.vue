@@ -2,6 +2,7 @@
 import { ref, onMounted, computed, watch } from "vue";
 import TodoForm from "@/components/TodoForm.vue";
 import TodoList from "@/components/TodoList.vue";
+
 import { inject } from "vue";
 
 interface Todo {
@@ -13,7 +14,11 @@ interface Todo {
 
 const todos = ref<Todo[]>([]);
 
-const { name } = inject("sharedName");
+const { name, updateName } = inject("sharedName");
+
+const onNameChange = (newName) => {
+  updateName(newName);
+};
 
 const todosAsc = computed(() =>
   todos.value.slice().sort((a, b) => {
@@ -58,17 +63,16 @@ onMounted(() => {
 <template>
   <layout>
     <main class="app">
-      <nav class="navbar">
-        <ul>
-          <li><router-link to="/">Home</router-link></li>
-          <li><router-link to="/about">About</router-link></li>
-        </ul>
-        <hr class="navbar-line" />
-      </nav>
       <section class="greeting">
         <h2 class="title">
           Hello,
-          <input type="text" id="name" placeholder="your name" v-model="name" />
+          <input
+            type="text"
+            id="name"
+            placeholder="your name"
+            :value="name"
+            @input="onNameChange($event.target.value)"
+          />
         </h2>
       </section>
 
@@ -78,34 +82,3 @@ onMounted(() => {
     </main>
   </layout>
 </template>
-
-<style scoped>
-.navbar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  position: relative;
-  margin-bottom: 20px;
-}
-
-ul {
-  list-style: none;
-  display: flex;
-  padding: 0;
-  margin-bottom: 10px;
-}
-
-li {
-  margin: 0 10px;
-}
-
-hr.navbar-line {
-  width: calc(100% - 20px);
-  border: none;
-  height: 1px;
-  background-color: var(--dark);
-  position: absolute;
-  bottom: 0;
-}
-</style>
