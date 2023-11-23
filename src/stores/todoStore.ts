@@ -1,28 +1,32 @@
 import { defineStore } from "pinia";
+import { ref, computed } from "vue";
 
-export interface Todo {
+interface ITodo {
   id: number;
   content: string;
-  done: boolean;
-  editable: boolean;
   createdAt: number;
+  editable: boolean;
+  done: boolean;
 }
 
-export const useTodoStore = defineStore("todos", {
-  state: () => ({
-    todos: [] as Todo[],
-  }),
-  actions: {
-    addTodo(newTodo: Todo) {
-      this.todos.push(newTodo);
-    },
-    removeTodo(todoId: number) {
-      this.todos = this.todos.filter((todo) => todo.id !== todoId);
-    },
-  },
-  getters: {
-    todosAsc(state) {
-      return state.todos.slice().sort((a, b) => a.createdAt - b.createdAt);
-    },
-  },
+export const useTodoStore = defineStore("todos", () => {
+  const todos = ref<ITodo[]>([]);
+
+  function addTodo(newTodo: ITodo) {
+    todos.value = [...todos.value, newTodo];
+  }
+
+  function removeTodo(todoId: number) {
+    todos.value = todos.value.filter((todo) => todo.id !== todoId);
+  }
+
+  const todosAsc = computed(() =>
+    todos.value.slice().sort((a: ITodo, b: ITodo) => a.createdAt - b.createdAt)
+  );
+
+  return {
+    addTodo,
+    removeTodo,
+    todosAsc,
+  };
 });

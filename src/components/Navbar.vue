@@ -3,17 +3,10 @@
     <ul>
       <li><router-link to="/">Home</router-link></li>
       <li><router-link to="/about">About</router-link></li>
-      <!-- Add more navigation links as needed -->
     </ul>
     <hr class="navbar-line" />
   </nav>
 </template>
-
-<!-- <script>
-  export default {
-    name: 'Navbar',
-  }
-  </script> -->
 
 <style>
 .navbar {

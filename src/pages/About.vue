@@ -6,8 +6,8 @@ import { computed } from "vue";
 const todoStore = useTodoStore();
 const { name } = inject("sharedName");
 
-const sortedTodos = computed(() =>
-  todoStore.todos.slice().sort((a, b) => a.createdAt - b.createdAt)
+const todosAsc = computed(() =>
+  todoStore.todosAsc.slice().sort((a, b) => a.createdAt - b.createdAt)
 );
 </script>
 
@@ -18,7 +18,7 @@ const sortedTodos = computed(() =>
       <h3>TODO LIST</h3>
       <div class="list" id="todo-list">
         <ul>
-          <li v-for="todo in sortedTodos" :key="todo.id">
+          <li v-for="todo in todosAsc" :key="todo.id">
             {{ todo.content }}
           </li>
         </ul>
