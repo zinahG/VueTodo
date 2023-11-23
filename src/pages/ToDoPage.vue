@@ -2,17 +2,18 @@
 import { ref, onMounted, computed, watch } from "vue";
 import TodoForm from "@/components/TodoForm.vue";
 import TodoList from "@/components/TodoList.vue";
-
+import { useTodoStore } from "@/stores/todoStore";
 import { inject } from "vue";
 
 interface Todo {
+  id: number;
   content: string;
   done: boolean;
   editable: boolean;
   createdAt: number;
 }
 
-const todos = ref<Todo[]>([]);
+const todoStore = useTodoStore();
 
 const { name, updateName } = inject("sharedName");
 
@@ -20,43 +21,42 @@ const onNameChange = (newName) => {
   updateName(newName);
 };
 
-const todosAsc = computed(() =>
-  todos.value.slice().sort((a, b) => {
-    return a.createdAt - b.createdAt;
-  })
-);
+const sortedTodos = todoStore.todosAsc;
 
-const addTodo = (newval: string) => {
-  if (newval.trim() === "") {
+const addTodo = (newVal: string) => {
+  debugger;
+  if (newVal.trim() === "") {
     return;
   }
 
-  todos.value.push({
-    content: newval,
+  todoStore.addTodo({
+    id: Math.random(),
+    content: newVal,
     done: false,
     editable: false,
     createdAt: new Date().getTime(),
   });
 };
 
-const removeTodo = (todo: Todo) => {
-  todos.value = todos.value.filter((t) => t !== todo);
-  console.log(todo);
-};
+// const removeTodo = (todo: Todo) => {
+//   todos.value = todos.value.filter((t) => t !== todo);
+//   console.log(todo);
+// };
 
-watch(
-  todos,
-  (newVal) => {
-    localStorage.setItem("todos", JSON.stringify(newVal));
-  },
-  {
-    deep: true,
-  }
-);
+// watch(
+//   todos,
+//   (newVal) => {
+//     localStorage.setItem("todos", JSON.stringify(newVal));
+//   },
+//   {
+//     deep: true,
+//   }
+// );
 
 onMounted(() => {
-  name.value = localStorage.getItem("name") || "";
-  todos.value = JSON.parse(localStorage.getItem("todos") || "[]");
+  const savedTodos = JSON.parse(localStorage.getItem("todos") || "[]");
+  savedTodos.forEach((todo) => todoStore.addTodo(todo));
+  // todos.value = JSON.parse(localStorage.getItem("todos") || "[]");
 });
 </script>
 
@@ -78,7 +78,7 @@ onMounted(() => {
 
       <todo-form :addTodo="addTodo" />
 
-      <todo-list :todosAsc="todosAsc" :removeTodo="removeTodo" />
+      <todo-list />
     </main>
   </layout>
 </template>

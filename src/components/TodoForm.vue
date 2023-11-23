@@ -13,16 +13,26 @@
 
 <script setup>
 import { ref } from "vue";
+import { useTodoStore } from "@/stores/todoStore";
 
 const props = defineProps(["addTodo"]);
 
 const inputContent = ref("");
+const todoStore = useTodoStore();
 
 const handleAddTodo = () => {
   if (inputContent.value.trim() === "") {
     return;
   }
-  props.addTodo(inputContent.value);
+  const newTodo = {
+    id: Math.random(),
+    content: inputContent.value,
+    done: false,
+    editable: true,
+    createdAt: new Date().getTime(),
+  };
+
+  todoStore.addTodo(newTodo);
   inputContent.value = "";
 };
 </script>
