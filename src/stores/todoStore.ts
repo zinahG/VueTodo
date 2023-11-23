@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 
 interface ITodo {
   id: number;
@@ -23,6 +23,14 @@ export const useTodoStore = defineStore("todos", () => {
   const todosAsc = computed(() =>
     todos.value.slice().sort((a: ITodo, b: ITodo) => a.createdAt - b.createdAt)
   );
+
+  onMounted(() => {
+    todos.value = JSON.parse(localStorage.getItem("todos") || "[]");
+  });
+
+  watch(todos, (newVal) => {
+    localStorage.setItem("todos", JSON.stringify(newVal));
+  });
 
   return {
     addTodo,

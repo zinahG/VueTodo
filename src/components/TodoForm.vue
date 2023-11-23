@@ -15,8 +15,6 @@
 import { ref } from "vue";
 import { useTodoStore } from "@/stores/todoStore";
 
-const props = defineProps(["addTodo"]);
-
 const inputContent = ref("");
 const todoStore = useTodoStore();
 

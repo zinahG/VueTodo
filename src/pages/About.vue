@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { inject } from "vue";
+import { inject, toRef } from "vue";
 import { useTodoStore } from "@/stores/todoStore";
-import { computed } from "vue";
+import { sharedName } from "../utils/types";
 
 const todoStore = useTodoStore();
-const { name } = inject("sharedName");
-
-const todosAsc = computed(() =>
-  todoStore.todosAsc.slice().sort((a, b) => a.createdAt - b.createdAt)
-);
+const todosAsc = toRef(todoStore, "todosAsc");
+const { name } = inject<sharedName>("sharedName");
 </script>
 
 <template>
