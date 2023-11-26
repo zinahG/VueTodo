@@ -9,39 +9,22 @@ interface ITodo {
   done: boolean;
 }
 
-// export const useTodoStore = defineStore("todos", () => {
-//   const todos = ref<ITodo[]>([]);
-
-//   function addTodo(newTodo: ITodo) {
-//     todos.value = [...todos.value, newTodo];
-//   }
-
-//   function removeTodo(todoId: number) {
-//     todos.value = todos.value.filter((todo) => todo.id !== todoId);
-//   }
-
-//   const todosAsc = computed(() =>
-//     todos.value.slice().sort((a: ITodo, b: ITodo) => a.createdAt - b.createdAt)
-//   );
-
-//   onMounted(() => {
-//     todos.value = JSON.parse(localStorage.getItem("todos") || "[]");
-//   });
-
-//   watch(todos, (newVal) => {
-//     localStorage.setItem("todos", JSON.stringify(newVal));
-//   });
-
-//   return {
-//     addTodo,
-//     removeTodo,
-//     todosAsc,
-//   };
-// });
-
 export const useTodoStore = defineStore("todos", () => {
   const todos = ref<ITodo[]>([]);
-  const apiUrl = "https://jsonplaceholder.typicode.com/posts";
+  const apiUrl = "https://jsonplaceholder.typicode.com/todos";
+
+  async function fetchTodos() {
+    try {
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error("Failed to fetch todos");
+      }
+      const fetchedTodos = await response.json();
+      todos.value = fetchedTodos;
+    } catch (error) {
+      console.error("Error fetching todos:", error);
+    }
+  }
 
   async function addTodo(newTodo: ITodo) {
     try {
@@ -79,8 +62,17 @@ export const useTodoStore = defineStore("todos", () => {
     todos.value.slice().sort((a: ITodo, b: ITodo) => a.createdAt - b.createdAt)
   );
 
-  onMounted(() => {
-    todos.value = JSON.parse(localStorage.getItem("todos") || "[]");
+  // onMounted(() => {
+  //   fetchTodos();
+  //   todos.value = JSON.parse(localStorage.getItem("todos") || "[]");
+  // });
+
+  onMounted(async () => {
+    try {
+      await fetchTodos();
+    } catch (error) {
+      console.error("Error fetching todos from API:", error);
+    }
   });
 
   watch(todos, (newVal) => {
@@ -91,5 +83,6 @@ export const useTodoStore = defineStore("todos", () => {
     addTodo,
     removeTodo,
     todosAsc,
+    fetchTodos,
   };
 });
