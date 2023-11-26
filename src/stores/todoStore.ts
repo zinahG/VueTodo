@@ -11,7 +11,7 @@ interface ITodo {
 
 export const useTodoStore = defineStore("todos", () => {
   const todos = ref<ITodo[]>([]);
-  const apiUrl = "https://jsonplaceholder.typicode.com/todos";
+  const apiUrl = "https://65632c71ee04015769a6dfb6.mockapi.io/api/todo";
 
   async function fetchTodos() {
     try {
@@ -61,19 +61,6 @@ export const useTodoStore = defineStore("todos", () => {
   const todosAsc = computed(() =>
     todos.value.slice().sort((a: ITodo, b: ITodo) => a.createdAt - b.createdAt)
   );
-
-  // onMounted(() => {
-  //   fetchTodos();
-  //   todos.value = JSON.parse(localStorage.getItem("todos") || "[]");
-  // });
-
-  onMounted(async () => {
-    try {
-      await fetchTodos();
-    } catch (error) {
-      console.error("Error fetching todos from API:", error);
-    }
-  });
 
   watch(todos, (newVal) => {
     localStorage.setItem("todos", JSON.stringify(newVal));

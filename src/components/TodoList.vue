@@ -17,10 +17,13 @@
 
 <script setup>
 import { useTodoStore } from "@/stores/todoStore";
-import { toRef } from "vue";
+import { toRef, onMounted } from "vue";
 
 const todoStore = useTodoStore();
 const todosAsc = toRef(todoStore, "todosAsc");
+onMounted(() => {
+  todoStore.fetchTodos();
+});
 
 const removeTodo = (todoId) => {
   todoStore.removeTodo(todoId);

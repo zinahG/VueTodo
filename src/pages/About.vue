@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { inject, toRef } from "vue";
+import { inject, toRef, onMounted } from "vue";
 import { useTodoStore } from "@/stores/todoStore";
 import { sharedName } from "../utils/types";
 
 const todoStore = useTodoStore();
 const todosAsc = toRef(todoStore, "todosAsc");
 const { name } = inject<sharedName>("sharedName");
+onMounted(() => {
+  todoStore.fetchTodos();
+});
 </script>
 
 <template>
