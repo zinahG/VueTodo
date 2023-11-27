@@ -6,8 +6,8 @@
       <h4>What's on your todo list?</h4>
       <input type="text" name="content" id="content" v-model="inputContent" />
 
-      <input type="submit" value="Add todo" :disabled="loading.add" />
-      <TheLoader v-if="loading.add" :text="'Adding todo...'" />
+      <input type="submit" value="Add todo" :disabled="loading" />
+      <TheLoader v-if="loading" :text="'Adding todo...'" />
     </form>
   </section>
 </template>

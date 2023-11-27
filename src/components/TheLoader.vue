@@ -10,21 +10,18 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    text: {
-      type: String,
-      default: "Loading...",
-    },
+<script setup>
+const props = defineProps({
+  loading: {
+    type: Boolean,
+    default: false,
   },
-};
+  text: {
+    type: String,
+    default: "Loading...",
+  },
+});
 </script>
-
 <style scoped>
 .loading-box {
   position: fixed;

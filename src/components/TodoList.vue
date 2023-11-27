@@ -1,35 +1,16 @@
 <template>
   <section class="todo-list">
     <div class="list" id="todo-list">
-      <TheLoader v-if="todoStore.loading.fetch" :text="'Fetching todos...'" />
+      <TheLoader v-if="loading" :text="'Fetching todos...'" />
       <div v-if="!loading">
-        <div
+        <TodoItem
           v-for="todo in todosAsc"
           :key="todo.id"
-          :class="`todo-item ${todo.done && 'done'}`"
-        >
-          <div class="actions">
-            <button class="delete" @click="removeTodo(todo.id)">
-              <TheLoader
-                v-if="todoStore.loading.remove === todo.id"
-                :text="'Deleting...'"
-              />Delete
-            </button>
-            <span
-              v-if="!todo.editable"
-              class="todo-content"
-              @dblclick="toggleEdit(todo)"
-            >
-              {{ todo.content }}
-            </span>
-            <input
-              v-else
-              v-model="todo.content"
-              @keyup.enter="saveEdit(todo)"
-              @blur="saveEdit(todo)"
-            />
-          </div>
-        </div>
+          :todo="todo"
+          :removeTodo="removeTodo"
+          :updateTodo="updateTodo"
+          @edit="handleEdit"
+        />
       </div>
     </div>
   </section>
@@ -37,12 +18,13 @@
 
 <script setup>
 import { useTodoStore } from "@/stores/todoStore";
-import { toRef, onMounted, computed } from "vue";
+import { onMounted, computed } from "vue";
+import TodoItem from "@/components/TodoItem.vue";
 import TheLoader from "@/components/TheLoader.vue";
 
 const todoStore = useTodoStore();
-const loading = computed(() => todoStore.loading.fetch);
-const todosAsc = toRef(todoStore, "todosAsc");
+const loading = computed(() => todoStore.loading);
+const todosAsc = computed(() => todoStore.todosAsc);
 
 onMounted(() => {
   todoStore.fetchTodos();
@@ -50,25 +32,22 @@ onMounted(() => {
 
 const removeTodo = async (todoId) => {
   try {
-    todoStore.loading.remove = todoId;
+    todoStore.loading = todoId;
     await todoStore.removeTodo(todoId);
   } finally {
-    todoStore.loading.remove = null;
+    todoStore.loading = null;
   }
 };
 
-const toggleEdit = (todo) => {
-  todo.editable = !todo.editable;
+const updateTodo = (todo) => {
+  todoStore.updateTodo(todo);
 };
 
-const saveEdit = (todo) => {
-  todoStore.updateTodo(todo);
-  todo.editable = false;
+const handleEdit = ({ id, editable }) => {
+  const todoToUpdate = todosAsc.value.find((todo) => todo.id === id);
+  if (todoToUpdate) {
+    todoToUpdate.editable = editable;
+    todoStore.updateTodo(todoToUpdate);
+  }
 };
 </script>
-
-<style scoped>
-.todo-content {
-  margin-left: 10px;
-}
-</style>

@@ -11,57 +11,58 @@ interface ITodo {
 }
 
 export const useTodoStore = defineStore("todos", () => {
-  const loading = ref({
-    fetch: false,
-    add: false,
-    delete: false,
-  });
-  const todos = ref<ITodo[]>([]);
+  const loading = ref(false);
+  const todos = ref<ITodo[]>(JSON.parse(localStorage.getItem("todos") || "[]"));
   const apiUrl = "https://65632c71ee04015769a6dfb6.mockapi.io/api/todo";
+  let fetched = false;
 
   async function fetchTodos() {
-    try {
-      loading.value.fetch = true;
-      const response = await axios.get(apiUrl);
-      todos.value = response.data;
-    } catch (error) {
-      console.error("Error fetching todos:", error);
-    } finally {
-      loading.value.fetch = false;
+    if (!fetched) {
+      try {
+        loading.value = true;
+        const response = await axios.get(apiUrl);
+        todos.value = response.data;
+        fetched = true;
+      } catch (error) {
+        console.error("Error fetching todos:", error);
+      } finally {
+        loading.value = false;
+      }
     }
   }
+
   async function addTodo(newTodo: ITodo) {
     try {
-      loading.value.add = true;
+      loading.value = true;
       const response = await axios.post(apiUrl, newTodo);
       todos.value.push(response.data);
     } catch (error) {
       console.error("Error adding todo:", error);
     } finally {
-      loading.value.add = false;
+      loading.value = false;
     }
   }
 
   async function removeTodo(todoId: number) {
     try {
-      loading.value.delete = true;
+      loading.value = true;
       await axios.delete(`${apiUrl}/${todoId}`);
       todos.value = todos.value.filter((todo) => todo.id !== todoId);
     } catch (error) {
       console.error("Error removing todo:", error);
     } finally {
-      loading.value.delete = false;
+      loading.value = false;
     }
   }
 
   async function updateTodo(updatedTodo: ITodo) {
     try {
-      const response = await axios.put(
-        `${apiUrl}/${updatedTodo.id}`,
-        updatedTodo
-      );
       const index = todos.value.findIndex((todo) => todo.id === updatedTodo.id);
       if (index !== -1) {
+        const response = await axios.put(
+          `${apiUrl}/${updatedTodo.id}`,
+          updatedTodo
+        );
         todos.value[index] = response.data;
       }
     } catch (error) {

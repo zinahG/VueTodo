@@ -1,6 +1,7 @@
 <script setup>
 import Navbar from "@/components/Navbar.vue";
 import { provide, ref, watch } from "vue";
+import { useTodoStore } from "@/stores/todoStore";
 
 const name = ref(localStorage.getItem("name") || "");
 
@@ -16,6 +17,9 @@ provide("sharedName", {
 watch(name, (newVal) => {
   localStorage.setItem("name", newVal);
 });
+
+const store = useTodoStore();
+store.fetchTodos();
 </script>
 
 <template>
