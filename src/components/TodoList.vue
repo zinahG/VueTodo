@@ -3,13 +3,7 @@
     <div class="list" id="todo-list">
       <TheLoader v-if="loading" :text="'Loading...'" />
       <div v-if="!loading">
-        <TodoItem
-          v-for="todo in todosAsc"
-          :key="todo.id"
-          :todo="todo"
-          :removeTodo="removeTodo.bind(null, todo.id)"
-          :saveEdit="saveEdit"
-        />
+        <TodoItem v-for="todo in todosAsc" :key="todo.id" :todo="todo" />
       </div>
     </div>
   </section>
@@ -28,19 +22,6 @@ const todosAsc = toRef(todoStore, "todosAsc");
 onMounted(() => {
   todoStore.fetchTodos();
 });
-
-const removeTodo = async (todoId) => {
-  try {
-    todoStore.loading = todoId;
-    await todoStore.removeTodo(todoId);
-  } finally {
-    todoStore.loading = null;
-  }
-};
-
-const saveEdit = (todo) => {
-  todoStore.updateTodo(todo);
-};
 </script>
 
 <style scoped>

@@ -19,31 +19,30 @@
 </template>
 
 <script setup>
-import { ref, defineProps } from "vue";
-
+import { ref } from "vue";
+import { useTodoStore } from "@/stores/todoStore";
 import TheLoader from "@/components/TheLoader.vue";
 
-const props = defineProps(["todo", "removeTodo", "saveEdit"]);
-
+const props = defineProps(["todo"]);
+const todoStore = useTodoStore();
 const todo = ref(props.todo);
 const loading = ref(false);
 
 const removeTodo = async () => {
   try {
-    loading.value = true;
-    await props.removeTodo();
-  } finally {
-    loading.value = false;
+    todoStore.loading = true;
+    await todoStore.removeTodo(todo.value.id);
+  } catch (error) {
+    console.error("Error removing todo:", error);
   }
 };
 
+const saveEdit = () => {
+  todoStore.updateTodo(todo.value);
+  todo.value.editable = false;
+};
 const toggleEdit = () => {
   todo.value.editable = !todo.value.editable;
-};
-
-const saveEdit = () => {
-  props.saveEdit(todo.value);
-  todo.value.editable = false;
 };
 </script>
 
