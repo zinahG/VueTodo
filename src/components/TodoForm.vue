@@ -7,7 +7,7 @@
       <input type="text" name="content" id="content" v-model="inputContent" />
 
       <input type="submit" value="Add todo" :disabled="loading" />
-      <TheLoader v-if="loading" :text="'Adding todo...'" />
+      <TheLoader v-if="loading" :text="'Loading...'" />
     </form>
   </section>
 </template>

@@ -1,61 +1,49 @@
 <template>
-  <div v-if="todo" :class="`todo-item ${todo.done ? 'done' : ''}`">
+  <div :class="`todo-item ${todo.done && 'done'}`">
     <div class="actions">
-      <button class="delete" @click="handleRemove">
-        <TheLoader v-if="loading === todo.id" :text="'Deleting...'" />Delete
+      <button class="delete" @click="removeTodo">
+        <TheLoader v-if="loading" :text="'Loading...'" />
+        Delete
       </button>
       <span v-if="!todo.editable" class="todo-content" @dblclick="toggleEdit">
         {{ todo.content }}
       </span>
       <input
         v-else
-        v-model="editedContent"
-        @keyup.enter="saveEdit($event)"
-        @blur="saveEdit($event)"
+        v-model="todo.content"
+        @keyup.enter="saveEdit"
+        @blur="saveEdit"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, defineEmits } from "vue";
+import { ref, defineProps } from "vue";
+
 import TheLoader from "@/components/TheLoader.vue";
 
-const props = defineProps({
-  todo: Object,
-  onEdit: Function,
-  removeTodo: Function,
-});
+const props = defineProps(["todo", "removeTodo", "saveEdit"]);
 
+const todo = ref(props.todo);
 const loading = ref(false);
-const emits = defineEmits(["edit"]);
 
-const editedContent = ref(props.todo.content);
-
-const handleRemove = async () => {
-  loading.value = true;
+const removeTodo = async () => {
   try {
-    await removeTodo(todo.id);
+    loading.value = true;
+    await props.removeTodo();
   } finally {
     loading.value = false;
   }
 };
 
 const toggleEdit = () => {
-  emits("edit", { id: props.todo.id, editable: !props.todo.editable });
+  todo.value.editable = !todo.value.editable;
 };
 
-const saveEdit = (event) => {
-  if (event.type === "keyup" && event.key !== "Enter") {
-    return;
-  }
-  const updatedTodo = { ...props.todo, content: editedContent.value };
-  props.onEdit(updatedTodo);
-  emits("edit", { id: props.todo.id, editable: false });
-};
-
-const removeTodo = async (todoId) => {
-  await props.removeTodo(todoId);
+const saveEdit = () => {
+  props.saveEdit(todo.value);
+  todo.value.editable = false;
 };
 </script>
 
