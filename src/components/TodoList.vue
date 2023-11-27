@@ -1,14 +1,34 @@
 <template>
   <section class="todo-list">
     <div class="list" id="todo-list">
-      <div
-        v-for="todo in todosAsc"
-        :key="todo.id"
-        :class="`todo-item ${todo.done && 'done'}`"
-      >
-        <div class="actions">
-          <button class="delete" @click="removeTodo(todo.id)">Delete</button>
-          <span class="todo-content">{{ todo.content }}</span>
+      <TheLoader v-if="todoStore.loading.fetch" :text="'Fetching todos...'" />
+      <div v-if="!loading">
+        <div
+          v-for="todo in todosAsc"
+          :key="todo.id"
+          :class="`todo-item ${todo.done && 'done'}`"
+        >
+          <div class="actions">
+            <button class="delete" @click="removeTodo(todo.id)">
+              <TheLoader
+                v-if="todoStore.loading.remove === todo.id"
+                :text="'Deleting...'"
+              />Delete
+            </button>
+            <span
+              v-if="!todo.editable"
+              class="todo-content"
+              @dblclick="toggleEdit(todo)"
+            >
+              {{ todo.content }}
+            </span>
+            <input
+              v-else
+              v-model="todo.content"
+              @keyup.enter="saveEdit(todo)"
+              @blur="saveEdit(todo)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -17,16 +37,33 @@
 
 <script setup>
 import { useTodoStore } from "@/stores/todoStore";
-import { toRef, onMounted } from "vue";
+import { toRef, onMounted, computed } from "vue";
+import TheLoader from "@/components/TheLoader.vue";
 
 const todoStore = useTodoStore();
+const loading = computed(() => todoStore.loading.fetch);
 const todosAsc = toRef(todoStore, "todosAsc");
+
 onMounted(() => {
   todoStore.fetchTodos();
 });
 
-const removeTodo = (todoId) => {
-  todoStore.removeTodo(todoId);
+const removeTodo = async (todoId) => {
+  try {
+    todoStore.loading.remove = todoId;
+    await todoStore.removeTodo(todoId);
+  } finally {
+    todoStore.loading.remove = null;
+  }
+};
+
+const toggleEdit = (todo) => {
+  todo.editable = !todo.editable;
+};
+
+const saveEdit = (todo) => {
+  todoStore.updateTodo(todo);
+  todo.editable = false;
 };
 </script>
 

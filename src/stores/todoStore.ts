@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, watch } from "vue";
+import axios from "axios";
 
 interface ITodo {
   id: number;
@@ -10,54 +11,64 @@ interface ITodo {
 }
 
 export const useTodoStore = defineStore("todos", () => {
+  const loading = ref({
+    fetch: false,
+    add: false,
+    delete: false,
+  });
   const todos = ref<ITodo[]>([]);
   const apiUrl = "https://65632c71ee04015769a6dfb6.mockapi.io/api/todo";
 
   async function fetchTodos() {
     try {
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error("Failed to fetch todos");
-      }
-      const fetchedTodos = await response.json();
-      todos.value = fetchedTodos;
+      loading.value.fetch = true;
+      const response = await axios.get(apiUrl);
+      todos.value = response.data;
     } catch (error) {
       console.error("Error fetching todos:", error);
+    } finally {
+      loading.value.fetch = false;
     }
   }
-
   async function addTodo(newTodo: ITodo) {
     try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        body: JSON.stringify(newTodo),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Failed to add todo");
-      }
-      const addedTodo = await response.json();
-      todos.value.push(addedTodo);
+      loading.value.add = true;
+      const response = await axios.post(apiUrl, newTodo);
+      todos.value.push(response.data);
     } catch (error) {
       console.error("Error adding todo:", error);
+    } finally {
+      loading.value.add = false;
     }
   }
 
   async function removeTodo(todoId: number) {
     try {
-      const response = await fetch(`${apiUrl}/${todoId}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) {
-        throw new Error("Failed to remove todo");
-      }
+      loading.value.delete = true;
+      await axios.delete(`${apiUrl}/${todoId}`);
       todos.value = todos.value.filter((todo) => todo.id !== todoId);
     } catch (error) {
       console.error("Error removing todo:", error);
+    } finally {
+      loading.value.delete = false;
     }
   }
+
+  async function updateTodo(updatedTodo: ITodo) {
+    try {
+      const response = await axios.put(
+        `${apiUrl}/${updatedTodo.id}`,
+        updatedTodo
+      );
+      const index = todos.value.findIndex((todo) => todo.id === updatedTodo.id);
+      if (index !== -1) {
+        todos.value[index] = response.data;
+      }
+    } catch (error) {
+      console.error("Error updating todo:", error);
+    }
+  }
+
   const todosAsc = computed(() =>
     todos.value.slice().sort((a: ITodo, b: ITodo) => a.createdAt - b.createdAt)
   );
@@ -71,5 +82,7 @@ export const useTodoStore = defineStore("todos", () => {
     removeTodo,
     todosAsc,
     fetchTodos,
+    updateTodo,
+    loading,
   };
 });
